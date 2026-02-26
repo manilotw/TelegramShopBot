@@ -1,11 +1,6 @@
 import requests
 
 
-def get_access_token(api_token):
-    """Get the Strapi API token"""
-    return api_token
-
-
 def get_products(token, product_id=None, base_url=None):
     """Get products from Strapi"""
     headers = {'Authorization': f'Bearer {token}'}
