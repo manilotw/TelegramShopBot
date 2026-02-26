@@ -216,10 +216,9 @@ def send_cart_keyboard(bot, chat_id):
 
 
 
-
-def get_strapi_token():
+def get_strapi_token(api_token):
     """Get Strapi token"""
-    return strapi.get_access_token(STRAPI_API_TOKEN)
+    return strapi.get_access_token(api_token)
 
 
 if __name__ == '__main__':
@@ -229,8 +228,7 @@ if __name__ == '__main__':
     STRAPI_BASE_URL = os.getenv('STRAPI_BASE_URL')
     TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 
-    # Create a global function for token retrieval
-    strapi_token = get_strapi_token
+    strapi_token = get_strapi_token(STRAPI_API_TOKEN)
 
     updater = Updater(TELEGRAM_TOKEN)
     dispatcher = updater.dispatcher
