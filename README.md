@@ -155,7 +155,7 @@ npm run develop
 
 2. В другом терминале запустите Telegram бота:
 ```bash
-cd telegram-shop
+cd TelegramShopBot
 python main.py
 ```
 
