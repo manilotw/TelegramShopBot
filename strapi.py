@@ -13,10 +13,10 @@ def get_products(token, product_id=None, base_url=None):
     response = requests.get(url, headers=headers, params=params)
     response.raise_for_status()
     
-    data = response.json()
+    products = response.json()
     if product_id:
-        return data['data']
-    return data['data']
+        return products['data']
+    return products['data']
 
 
 def add_product_to_cart(token, cart_id, product_id, quantity, base_url=None):
