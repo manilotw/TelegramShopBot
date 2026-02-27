@@ -16,7 +16,7 @@ user_states = {}
 
 
 def start(bot, update):
-    token = strapi_token()
+    token = strapi_token
     products = {
         product['attributes']['name']: product['id'] for product in strapi.get_products(token, base_url=strapi_base_url)
     }
@@ -48,7 +48,7 @@ def handle_menu(bot, update):
     chat_id = query.message.chat_id
     message_id = query.message.message_id
 
-    token = strapi_token()
+    token = strapi_token
 
     product_id = query.data
     product = strapi.get_products(token, product_id, base_url=strapi_base_url)
@@ -94,7 +94,7 @@ def handle_description(bot, update):
 
     elif action[0] == 'quantity':
         product_id, quantity = action[1], action[2]
-        token = strapi_token()
+        token = strapi_token
         strapi.add_product_to_cart(token, chat_id, product_id, int(quantity), base_url=strapi_base_url)
         update.callback_query.answer('Товар добавлен в корзину')
         return 'HANDLE_DESCRIPTION'
@@ -104,7 +104,6 @@ def handle_cart(bot, update):
     query = update.callback_query
     chat_id = query.message.chat_id
     message_id = query.message.message_id
-
 
     if query.data == 'menu':
         return start(bot, update)
@@ -118,7 +117,7 @@ def handle_cart(bot, update):
         return 'HANDLE_WAITING_EMAIL'
 
     product_id = query.data
-    token = strapi_token()
+    token = strapi_token
     strapi.remove_cart_item(token, chat_id, product_id, base_url=strapi_base_url)
 
     send_cart_keyboard(bot, chat_id)
@@ -131,24 +130,24 @@ def handle_waiting_email(bot, update):
     text = update.message.text
 
     keyboard = [
-        [InlineKeyboardButton(f'◀️ В меню', callback_data='start')]
+        [InlineKeyboardButton('◀️ В меню', callback_data='start')]
     ]
 
     if validate_email(text):
         bot.send_message(
-            chat_id = chat_id,
-            text=f'*Ваш заказ оформлен!*',
+            chat_id=chat_id,
+            text='*Ваш заказ оформлен!*',
             parse_mode=telegram.ParseMode.MARKDOWN,
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
         customer_name = update.message.chat.first_name
-        token = strapi_token()
+        token = strapi_token
         strapi.create_customer(token, name=customer_name, email=text, base_url=strapi_base_url)
         return 'START'
 
     bot.send_message(
-        chat_id = chat_id,
-        text=f'Кажется, вы неправильно ввели email, повторите пожалуйста:'
+        chat_id=chat_id,
+        text='Кажется, вы неправильно ввели email, повторите пожалуйста:'
     )
     return 'HANDLE_WAITING_EMAIL'
 
@@ -168,7 +167,6 @@ def handle_users_reply(bot, update):
     else:
         user_state = user_states.get(str(chat_id), 'START')
 
-    
     states_functions = {
         'START': start,
         'HANDLE_MENU': handle_menu,
@@ -176,7 +174,9 @@ def handle_users_reply(bot, update):
         'HANDLE_CART': handle_cart,
         'HANDLE_WAITING_EMAIL': handle_waiting_email
     }
+
     state_handler = states_functions[user_state]
+
     try:
         next_state = state_handler(bot, update)
         user_states[str(chat_id)] = next_state
@@ -185,9 +185,10 @@ def handle_users_reply(bot, update):
 
 
 def send_cart_keyboard(bot, chat_id):
-    token = strapi_token()
+    token = strapi_token
     cart = strapi.get_cart(token, chat_id, base_url=strapi_base_url)
     cart_items = strapi.get_cart_items(token, chat_id, base_url=strapi_base_url)
+
     menu_button = [[InlineKeyboardButton('◀️ Меню', callback_data='menu')]]
     pay_button = [[InlineKeyboardButton('🤑 Оплатить', callback_data='pay')]]
 
@@ -197,28 +198,23 @@ def send_cart_keyboard(bot, chat_id):
             text='В корзине ничего нет :(',
             reply_markup=InlineKeyboardMarkup(menu_button),
         )
-
         return
 
     cart_items_formatted = strapi.get_formatted_cart_items(cart, cart_items)
+
     keyboard = [
-        [InlineKeyboardButton(f'❌ Удалить {product["attributes"]["name"]}', callback_data=product['id'])] for product in cart_items
+        [InlineKeyboardButton(f'❌ Удалить {product["attributes"]["name"]}', callback_data=product['id'])]
+        for product in cart_items
     ] + pay_button + menu_button
 
     reply_markup = InlineKeyboardMarkup(keyboard)
+
     bot.send_message(
         chat_id=chat_id,
         text=cart_items_formatted,
         reply_markup=reply_markup,
         parse_mode=telegram.ParseMode.MARKDOWN
     )
-
-
-
-
-def get_strapi_token(api_token):
-    """Get Strapi token"""
-    return strapi.get_access_token(api_token)
 
 
 if __name__ == '__main__':
@@ -228,12 +224,14 @@ if __name__ == '__main__':
     strapi_base_url = os.getenv('STRAPI_BASE_URL')
     telegram_token = os.getenv('TELEGRAM_TOKEN')
 
-    strapi_token = get_strapi_token(stapi_api_token)
+    strapi_token = strapi.get_access_token(stapi_api_token)
 
     updater = Updater(telegram_token)
     dispatcher = updater.dispatcher
+
     dispatcher.add_handler(CallbackQueryHandler(handle_users_reply))
     dispatcher.add_handler(MessageHandler(Filters.text, handle_users_reply))
     dispatcher.add_handler(CommandHandler('start', handle_users_reply))
+
     updater.start_polling()
     updater.idle()
