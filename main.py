@@ -220,9 +220,9 @@ def send_cart_keyboard(bot, chat_id):
 if __name__ == '__main__':
     load_dotenv()
 
-    stapi_api_token = os.getenv('STRAPI_API_TOKEN')
+    stapi_api_token = os.environ['STRAPI_API_TOKEN']
+    telegram_token = os.environ['TELEGRAM_TOKEN']
     strapi_base_url = os.getenv('STRAPI_BASE_URL')
-    telegram_token = os.getenv('TELEGRAM_TOKEN')
 
     strapi_token = strapi.get_access_token(stapi_api_token)
 
