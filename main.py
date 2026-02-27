@@ -203,7 +203,7 @@ def main():
     telegram_token = os.environ['TELEGRAM_TOKEN']
     base_url = os.getenv('STRAPI_BASE_URL')
 
-    token = strapi.get_access_token(strapi_api_token)
+    token = strapi_api_token
 
     updater = Updater(telegram_token)
     dispatcher = updater.dispatcher
